@@ -91,6 +91,11 @@ if __name__ == "__main__":
         print("Debug mode, no MOSS query attempted")
         r = ""  # hard coded MOSS URL here
 
+    if not r.startswith("http"):
+        print("MOSS terminated at:")
+        print(r)
+        raise Exception("MOSS script failed. Make sure your files exist.")
+
     roster = Roster()
     print("Finding matches...")
     for i in range(args.num_students):    # number of students
