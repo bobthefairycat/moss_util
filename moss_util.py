@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
             if args.pdf_save:
                 fout = os.path.join(args.pdf_dir, fname)
-                cmd = f"wkhtmltopdf {r.format(i, j)} {fout}"
+                cmd = "wkhtmltopdf " +  r + "/match{}-{}.html ".format(i, j) + fout
                 os.system(cmd)  # save the pdf
 
     if args.verbose:
