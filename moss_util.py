@@ -33,9 +33,10 @@ class Roster:
             self.add_student(match1)
         if match2 not in self.student_to_idx:
             self.add_student(match2)
-        if match2 not in self.matches[self.student_to_idx[match1]]:
+
+        if self.student_to_idx[match2] not in self.matches[self.student_to_idx[match1]]:
             self.matches[self.student_to_idx[match1]].append(self.student_to_idx[match2])
-        if match2 not in self.matches[self.student_to_idx[match2]]:
+        if self.student_to_idx[match1] not in self.matches[self.student_to_idx[match2]]:
             self.matches[self.student_to_idx[match2]].append(self.student_to_idx[match1])
 
     def generate_matches(self):
