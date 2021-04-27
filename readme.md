@@ -37,7 +37,7 @@ optional arguments:
   -d DIR, --dir DIR     moss input files directory structure, relative
                         directories only
   -l LANG, --lang LANG  language, default Python
-  --pdf-save            save flag, true or false, for saving pdf files from
+  --pdf-save            save flag, for saving pdf files from
                         the moss page
   --pdf-dir PDF_DIR     target output directory for pdf generation from moss,
                         relative directories only
