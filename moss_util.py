@@ -1,34 +1,49 @@
+"""MOSS graph constructor to make matches more readable.
+
+Identifies groups of matching solutions. This Python script MUST be in the
+same directory as the moss perl script.
+"""
+
 import os
 import requests
 from datetime import datetime
 import argparse
 
-## put in same dir as moss script
+
 class Roster:
-    def __init__(self, students=[]):
-        """
+    def __init__(self) -> None:
+        """ Initialize a record of students and matches
+
         students: List of Students
         size: int
-        matches: List of List of int, an undirected graph
+        matches:
+            List of List of int, an undirected graph. For each item
+            in matches, the index <i> of item corresponds to the
+            student at index <i> in students. The List of ints are the
+            indices of the matching students.
         """
-        self.students = students  # location is idx
-        self.size = len(students)
+        self.students = []
+        self.size = 0
 
-        # empty unless initializing with students for some reason
         self.student_to_idx = {}
         self.matches = []
-        self.student_to_idx = {self.students[i]: i
-                               for i in range(self.size)}
+        self.student_to_idx = {}
 
-        self.generate_matches()
-
-    def add_student(self, new_student):
+    def add_student(self, new_student: str) -> None:
+        """ Add a new student to the Roster
+        """
         self.student_to_idx[new_student] = self.size  # update idx record
         self.students.append(new_student)  # update student record
         self.matches.append([])
         self.size += 1  # update size record
 
-    def add_match(self, match1, match2):
+    def add_match(self, match1: str, match2: str) -> None:
+        """ Update match records for both students.
+
+        Note: This creates the full graph matrix.
+        This can be made more efficient by just storing the
+        "upper triangular" matrix of matches....
+        """
         if match1 not in self.student_to_idx:  #  faster to look in keys than in list
             self.add_student(match1)
         if match2 not in self.student_to_idx:
@@ -36,22 +51,21 @@ class Roster:
 
         idx1, idx2 = self.student_to_idx[match1], \
                      self.student_to_idx[match2]
-        
+
         if idx2 not in self.matches[idx1]:
             self.matches[idx1].append(idx2)
         if idx1 not in self.matches[idx2]:
             self.matches[idx2].append(idx1)
 
-    def generate_matches(self):
-        self.matches = [[self.student_to_idx[match]
-                            for match in student.matches] for student in self.students]
-
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """ String representation of the Roster match matrix.
+        """
         return '\n'.join(['\t'.join(
                 [str(j)] + [str(i) for i in self.matches[j]]
             )
             for j in range(len(self.matches))]
         )
+
 
 if __name__ == "__main__":
     time = datetime.now().strftime("%m%d%Y%H%M%S")
@@ -79,11 +93,9 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", default=False, action='store_true',
                         help="verbosity flag")
 
-    #parse tmp.txt
     args = parser.parse_args()
 
     if not args.DEBUG:
-        ## fill in defaults
         print("Sending request to MOSS...")
         moss_cmd = f"./moss -l {args.lang} -b {args.base} -d {args.dir} | tail -1 > tmp.txt"  # grab the moss URL
         os.system(moss_cmd)
@@ -95,6 +107,7 @@ if __name__ == "__main__":
         print("Debug mode, no MOSS query attempted")
         r = ""  # hard coded MOSS URL here
 
+    print(r)
     if not r.startswith("http"):
         print("MOSS terminated at:")
         print(r)
@@ -128,14 +141,15 @@ if __name__ == "__main__":
 
             if args.pdf_save:
                 fout = os.path.join(args.pdf_dir, fname)
-                cmd = "wkhtmltopdf " +  r + "/match{}-{}.html ".format(i, j) + fout
+                cmd = "wkhtmltopdf " + r + "/match{}-{}.html ".format(i, j) + fout
                 os.system(cmd)  # save the pdf
 
     if args.verbose:
         print("--- Matches stored found below ---")
         print(roster)
-    ## now save the match information
-    ## prune duplicates...
+
+    # now save the match information
+    # prune duplicates...
 
     print(f"Match finding complete, parsed {args.num_students} records and {roster.size} students")
     print("Writing the matches...")
